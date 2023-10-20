@@ -453,15 +453,15 @@ void library::beginReturnSequence()
 	int serial;
 
 	cout<<"\n\n\n\n\n\n\t\t\tEnter serial number to return book: ";
-	fgets(temp, sizeof(temp), stdin);
-	serial=atoi(temp);
+	fgets(serialNumberAsCString, sizeof(serialNumberAsCString), stdin);
+	serial=atoi(serialNumberAsCString);
 
 	fstream mastFileStream("mfile.dat",ios::binary|ios::in|ios::out);
 
 	mastFileStream.seekp(0);
 	while(!mastFileStream.eof())
 	{
-		pos_of_record = mastFileStream.tellg();
+		positionOfRecord = mastFileStream.tellg();
 		mastFileStream.read((char*)&book,sizeof(book));
 
 		if(book.getSerialNumber()==serial)
