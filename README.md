@@ -2,7 +2,7 @@
 
 This program is a console-based implementation of a library management system in C++. It provides a framework to issue, return, modify, and search book records.
 
-**Skills**: C++, File Manipulation, Classes, Makefiles, String Manipulation
+**Skills**: C++, File I/O, Classes, Makefiles, String Manipulation
 
 The user starts on a menu interface that uses the W and S keys to navigate up and down, respectively, and the enter key to select. They can choose to Input Data, Search Data, Return Book, Modify Records, or Exit the program.
 
