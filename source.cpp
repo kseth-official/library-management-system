@@ -21,25 +21,29 @@ int n;
 int dayofyear(char [],char [], char []);
 int datecheck(char [],char [], char []);
 
-void move(int *pos, int temp) //Function To Prevent Cursor From Moving Off
+void move(int *position, int direction) //Function To Prevent Cursor From Moving Off
 {			      //Screen																																																 			      //cursor from leaving screen
-	int x=*pos;
-	if(temp==0)
-	--*pos;
+	int initialPosition=*position;
+
+	if(direction==0)
+		--*position;
 	else
-	++*pos;
-	if(*pos==0 || *pos==6)
-	*pos=x;
+		++*position;
+
+	if(*position==0 || *position==6)
+		*position=initialPosition;
 }
 
-int datecheck(char day[],char month[],char year[]) //to check for valid date
+int datecheck(char dayAsCString[],char monthAsCString[],char yearAsCString[]) //to check for valid date
 {
-	int d=atoi(day);
-	int m=atoi(month);
-	int y=atoi(year);
-	if(d<1 || m>12 || m<1 || y<2000 || y>2025) //check within constraints
-	return 0;
-	switch(m)
+	int day=atoi(dayAsCString);
+	int month=atoi(monthAsCString);
+	int year=atoi(yearAsCString);
+	
+	if(day<1 || month>12 || month<1 || year<2000 || year>2025) //check within constraints
+		return 0;
+	
+	switch(month)
 	{
 		case 1:
 		case 3:
@@ -47,38 +51,43 @@ int datecheck(char day[],char month[],char year[]) //to check for valid date
 		case 7:
 		case 8:
 		case 10:
-		case 12:if(d>31)
-			return 0;
-			break;
-		case 2: if(y%4==0) //check leap year
-			{
-				if(d>29)
+		case 12:
+			if(day>31)
 				return 0;
-			}
-			else if(d>28)
-			return 0;
+			break;
+		case 2: 
+			if(year%4==0) //check leap year
+			{
+				if(day>29)
+					return 0;
+			} else if(day>28)
+				return 0;
+			
 			break;
 		case 4:
 		case 6:
 		case 9:
-		case 11:if(d>30)
-			return 0;
+		case 11:
+			if(day>30)
+				return 0;
 	}
 	return 1;
 }
 
 class books //CONTAINS ALL BOOK RELATED OPERATIONS
 {
-	private: char slno[5], name[30], bname[30];
-		 char iday[5], imonth[5], iyear[7];
-		 char rday[5], rmonth[5], ryear[7];
-		 char returned;
-		 int late_fee, issue_days, return_days, serial;
-		 int issue_year, return_year;
+	private: 
+		char serialNumber[5], borrowerName[30], bookName[30];
+		char issueDay[5], issueMonth[5], issueYear[7];
+		char returnDay[5], returnMonth[5], returnYear[7];
+		char isReturned;
+		int lateFee, issueDateAsDaysSinceJan1st, returnDateAsDaysSinceJan1st, serialNumberAsInt;
+		int yearOfIssue, yearOfReturn;
 
-	public: int sl()
+	public: 
+		int sl()
 		{
-			return serial;
+			return serialNumberAsInt;
 		}
 
 		void input(int);
@@ -88,168 +97,194 @@ class books //CONTAINS ALL BOOK RELATED OPERATIONS
 		void freturn();
 		char freturned();
 		int fserial();
-} b ;
+} book ;
 
 int books::fserial()
 {
-	return serial;
+	return serialNumberAsInt;
 }
 
 char books::freturned()
 {
-	return returned;
+	return isReturned;
 }
 
 void books::fissue()
 {
-	cout.write(iday,2);
+	cout.write(issueDay,2);
 	cout<<"/";
-	cout.write(imonth,2);
+	cout.write(issueMonth,2);
 	cout<<"/";
-	cout.write(iyear,4);
+	cout.write(issueYear,4);
 }
 
 void books::freturn()
 {
-	cout.write(rday,2);
+	cout.write(returnDay,2);
 	cout<<"/";
-	cout.write(rmonth,2);
+	cout.write(returnMonth,2);
 	cout<<"/";
-	cout.write(ryear,4);
+	cout.write(returnYear,4);
 }
-void books::input(int n)
+void books::input(int isNewData)
 {
-	int x, temp;
-	if(n==0)
+	int shouldExit;
+	if(isNewData==0)
 	{
 		cout<<"\t\t\tEnter serial number: ";
-		fgets(slno, sizeof(slno), stdin); 
-		serial=atoi(slno);
+		fgets(serialNumber, sizeof(serialNumber), stdin); 
+		serialNumberAsInt=atoi(serialNumber);
 	}
+
 	cout<<"\t\t\tEnter name: ";
-	fgets(name, sizeof(name), stdin); 
+	fgets(borrowerName, sizeof(borrowerName), stdin); 
+
 	cout<<"\t\t\tEnter book name: ";
-	fgets(bname, sizeof(bname), stdin); 
+	fgets(bookName, sizeof(bookName), stdin); 
+
 	do
 	{
-		x=0;
+		shouldExit=0;
+
 		cout<<"\t\t\tENTER ISSUE DATE: ";
 		cout<<"\n\t\t\tEnter date of month (dd): ";
-		fgets(iday, sizeof(iday), stdin); 
+		fgets(issueDay, sizeof(issueDay), stdin); 
+
 		cout<<"\t\t\tEnter month number(mm): ";
-		fgets(imonth, sizeof(imonth), stdin); 
+		fgets(issueMonth, sizeof(issueMonth), stdin); 
+
 		cout<<"\t\t\tEnter year number (yyyy): ";
-		fgets(iyear, sizeof(iyear), stdin);
-		if(datecheck(iday,imonth,iyear)==0)
+		fgets(issueYear, sizeof(issueYear), stdin);
+
+		if(datecheck(issueDay,issueMonth,issueYear)==0)
 		{
 			cout<<"\n\t\t\tInvalid Date.\n\t\t\tPlease enter as the following:\n\t\t\tdd should be from 1 to 31 only\n\t\t\tmm should be from 1 to 12\n\t\t\tyyyy should be four digits\n\n";
-			x=1;
+			shouldExit=1;
 		}
+
 		cout<<"\n";
-	} while(x==1) ;
-	issue_days = dayofyear(iday,imonth,iyear);
-	issue_year = atoi(iyear);
-	if(n==0)
-	returned='n';
+	} while(shouldExit==1) ;
+	
+	issueDateAsDaysSinceJan1st = dayofyear(issueDay,issueMonth,issueYear);
+	
+	yearOfIssue = atoi(issueYear);
+	
+	if(isNewData==0)
+		isReturned='n';
 }
 
 void books::output()
 {
-	cout<<"\t\t\tSerial Number: "<<slno;
+	cout<<"\t\t\tSerial Number: "<<serialNumber;
 	cout<<"\n\t\t\tName: ";
-	puts(name);
+	puts(borrowerName);
 	cout<<"\t\t\tBook Name: ";
-	puts(bname);
+	puts(bookName);
 
 	cout<<"\t\t\tIssue Date: ";
 	fissue();
 
 	cout<<"\n\t\t\tReturn Status: ";
-	if(returned=='n')
-	cout<<"Not Returned";
-	else if(returned=='y') cout<<"Returned";
+
+	if(isReturned=='n')
+		cout<<"Not Returned";
+	else if(isReturned=='y') 
+		cout<<"Returned";
 	//cout<<"\nIssue Days: "<<issue_days;
 }
 
 void books::modify()
 {
-	int x;
+	int shouldExit;
 	do
 	{
-		x=0;
+		shouldExit = 0;
+
 		cout<<"\n\t\t\tEnter Return Date";
 		cout<<"\n\t\t\tEnter day (dd): ";
-		cin.get(rday, sizeof(rday));
-		cout<<"\t\t\tEnter month (mm): ";
-		fgets(rmonth, sizeof(rmonth), stdin); 
-		cout<<"\t\t\tEnter year (yyyy): ";
-		fgets(ryear, sizeof(ryear), stdin); 
-		int id = atoi(iday), im = atoi(imonth),  iy = atoi(iyear);
-		int rd = atoi(rday), rm = atoi(rmonth) , ry = atoi(ryear);
+		cin.get(returnDay, sizeof(returnDay));
 
-		if(datecheck(rday,rmonth,ryear)==0)
+		cout<<"\t\t\tEnter month (mm): ";
+		fgets(returnMonth, sizeof(returnMonth), stdin); 
+
+		cout<<"\t\t\tEnter year (yyyy): ";
+		fgets(returnYear, sizeof(returnYear), stdin); 
+		
+		int issueDayAsInt = atoi(issueDay);
+		int issueMonthAsInt = atoi(issueMonth);
+		int issueYearAsInt = atoi(issueYear);
+		int returnDayAsInt = atoi(returnDay);
+		int returnMonthAsInt = atoi(returnMonth);
+		int returnYearAsInt = atoi(returnYear);
+
+		if(datecheck(returnDay,returnMonth,returnYear)==0)
 		{
 			cout<<"\t\t\tInvalid Date.\n\t\t\tPlease enter as the following:\n\t\t\tdd should be from 1 to 31 only\n\t\t\tmm should be from 1 to 12\n\t\t\tyyyy should be four digits\n";
-			x=1;
+			shouldExit = 1;
 			continue;
 		}
-		if( ry<iy || (ry==iy && rm<im) || (ry==iy && rm==im && rd<id) )
+		if( returnYearAsInt<issueYearAsInt || (returnYearAsInt==issueYearAsInt && returnMonthAsInt<issueMonthAsInt) || (returnYearAsInt==issueYearAsInt && returnMonthAsInt==issueMonthAsInt && returnDayAsInt<issueDayAsInt) )
 		{
 			cout<<"\t\t\tReturn Date Cannot Be Before Issue Date\n";
-			x=1;
+			shouldExit = 1;
 		}
-	} while(x==1) ;
+	} while(shouldExit == 1) ;
 
-	return_days = dayofyear(rday,rmonth,ryear);
-	return_year = atoi(ryear);
+	returnDateAsDaysSinceJan1st = dayofyear(returnDay,returnMonth,returnYear);
+	yearOfReturn = atoi(returnYear);
+
 	cout<<"\n\t\t\tDATE OF ISSUE: ";
-
 	fissue();
 
 	cout<<"\n\t\t\tDATE OF RETURN: ";
 
 	freturn();
 
-	int D = abs(issue_year-return_year);
-	if(D==0)
+	int yearDifference = abs(yearOfIssue-yearOfReturn);
+	if(yearDifference == 0)
 	{
-		cout<<"\n\t\t\tNUMBER OF DAYS: "<<return_days-issue_days;
-		late_fee = return_days-issue_days;
+		cout<<"\n\t\t\tNUMBER OF DAYS: "<<returnDateAsDaysSinceJan1st-issueDateAsDaysSinceJan1st;
+		lateFee = returnDateAsDaysSinceJan1st-issueDateAsDaysSinceJan1st;
 	}
-	else if(abs(D)>0)
+	else if(abs(yearDifference) > 0)
 	{
 		cout<<"\n\t\t\tNUMBER OF DAYS: ";
-		if(issue_year%4==0)
-		late_fee = (366-issue_days + return_days);
+		if(yearOfIssue % 4 == 0)
+			lateFee = (366 - issueDateAsDaysSinceJan1st + returnDateAsDaysSinceJan1st);
 		else
-		late_fee = (365-issue_days + return_days);
-		for(int i=issue_year+1;i<return_year;i++)
+			lateFee = (365 - issueDateAsDaysSinceJan1st + returnDateAsDaysSinceJan1st);
+
+		for(int i = yearOfIssue + 1;i < yearOfReturn;i++)
 		{
-			if(i%4==0)
-			late_fee+=366;
-			else late_fee+=365;
+			if(i % 4 == 0)
+				lateFee += 366;
+			else 
+				lateFee += 365;
 		}
-		cout<<late_fee;
+		
+		cout<<lateFee;
 	}
-	double tlate_fee = late_fee ;
-	tlate_fee = (tlate_fee/14)*100;
-	cout<<"\n\t\t\tLate Fee: "<<tlate_fee;
-	returned='y';
+
+	double tlate_fee = lateFee ;
+	tlate_fee = (tlate_fee / 14) * 100;
+	cout << "\n\t\t\tLate Fee: " << tlate_fee;
+	isReturned = 'y';
 	getch();
 }
-int dayofyear(char day[],char month[],char year[]) //FUNCTION TO CALCULATE
+
+int dayofyear(char dayAsCString[],char monthAsCString[],char yearAsCString[]) //FUNCTION TO CALCULATE
 {                                                  //DAYS FROM START OF YEAR
-	int sum=0;
-	int d=atoi(day) ;
-	int m=atoi(month) ;
-	int y=atoi(year) ;
-	int temp=1;
+	int sum = 0;
+	int day = atoi(dayAsCString) ;
+	int month = atoi(monthAsCString) ;
+	int year = atoi(yearAsCString) ;
+	
+	sum += day; //Add days of month number m to sum
 
-	sum+=d; //Add days of month number m to sum
-
-	while(temp!=m)
+	int i = 1;
+	while(i != month)
 	{
-		switch(temp)
+		switch(i)
 		{
 			case 1:
 			case 3:
@@ -257,73 +292,85 @@ int dayofyear(char day[],char month[],char year[]) //FUNCTION TO CALCULATE
 			case 7:
 			case 8:
 			case 10:
-			case 12: sum+=31;
+			case 12: 
+				sum += 31;
 				break;
-
-			case 2: if(y%4==0)
-				sum+=29;
+			case 2: 
+				if(year % 4 == 0)
+					sum += 29;
 				else
-				sum+=28;
+					sum += 28;
+				
 				break;
 
 			case 4:
 			case 6:
 			case 9:
-			case 11: sum+=30;
+			case 11: sum += 30;
 		}
-		++temp;
+
+		++i;
 	}
+	
 	return sum;
 }
 
 class library //CONTAINS ALL MASTER LIBRARY OPERATIONS
 {
-	private: char ch; int pos;
-	public: library()
-		{
-			pos=1;
-		}
+	private:
+
+	public: 
 		void input();
 		void search();
 		void menu();
 		void save();
 		void retbk();
 		void modify();
-} lib ;
+
+} library ;
 
 void library::search()
 {
 	system("cls");
-	char s[5];
-	int serial;
-	ifstream mast("mfile.dat",ios::binary|ios::in);
+	char serialNumberAsCString[5];
+	int serialNumber;
+
+	ifstream mast("mfile.dat",ios::binary | ios::in);
+
 	cout<<"\n\n\n\n\n\n\n\n";
 	cout<<"\t\t\tEnter serial number: ";
-	fgets(s, sizeof(s), stdin); 
-	serial = atoi(s);
+	fgets(serialNumberAsCString, sizeof(serialNumberAsCString), stdin);
+	serialNumber = atoi(serialNumberAsCString);
+
 	mast.seekg(0);
+
 	while(!mast.eof())
 	{
-		mast.read((char*)&b,sizeof(b));
-		if(b.sl()==serial)
+		mast.read((char*)&book,sizeof(book));
+		if(book.sl()==serialNumber)
 		{
-			b.output();
+			book.output();
 			getch();
 			break;
 		}
 	}
+
 	mast.close();
+
 	return;
 }
 
 void library::input()
 {
 	system("cls");
-	char temp[5], serial, opt;
-	fstream mast("mfile.dat",ios::binary|ios::app|ios::in);
+	char numberOfBorrowersAsCString[5];
+
+	fstream mastFileStream("mfile.dat",ios::binary|ios::app|ios::in);
+
 	cout<<"\n\n\n\n\n\n\n\n\t\t\tEnter number of borrowers: ";
-	fgets(temp, sizeof(temp), stdin); 
-	n=atoi(temp);
+	fgets(numberOfBorrowersAsCString, sizeof(numberOfBorrowersAsCString), stdin); 
+	n=atoi(numberOfBorrowersAsCString);
+
 	for(int i=0;i<n;i++)
 	{
 		system("cls");
@@ -331,56 +378,68 @@ void library::input()
 		//cout<<"\n\t\t\tINPUTTING SERIAL NUMBER\n\t\t\tWILL NOT OVERWRITE IT";
 		cout<<"\n\n\n\n\n\n\t\t\tNOTE: TO MODIFY EXISTING SERIAL NUMBER\n\t\t\tUSE MODIFY OPTION IN MENU\n";
 		cout<<"\n\t\t\tEnter Borrower "<<i+1<<"\n";
-		b.input(0);
-		mast.write((char*)&b,sizeof(b));
+		book.input(0);
+		mastFileStream.write((char*)&book,sizeof(book));
 	}
 
-	mast.close();
+	mastFileStream.close();
 	return;
 }
 
 void library::save()
 {
-	fstream mast("mfile.dat",ios::in|ios::binary);
-	fstream data("save.dat",ios::app|ios::binary);
-	while(mast)
+	fstream mastFileStream("mfile.dat",ios::in|ios::binary);
+	fstream saveFileStream("save.dat",ios::app|ios::binary);
+	while(mastFileStream)
 	{
-		mast.read((char*)&b,sizeof(b));
-		data.write((char*)&b,sizeof(b));
+		mastFileStream.read((char*)&book,sizeof(book));
+		saveFileStream.write((char*)&book,sizeof(book));
 	}
 }
 
 void library::modify()
 {
 	system("cls");
-	char opt,temp[5], pass[10];
-	int pos_of_record, x, serial;
+	char serialNumberAsCString[5];
+	char passwordAsCString[10];
+
+	int recordPosition;
+	int serialNumber;
+
 	cout<<"\n\n\n\n\n\n\n\n\t\tEnter Administrator Password To Modify: ";
-	fgets(pass, sizeof(pass), stdin); 
-	if(strcmp("amaatra",pass)!=0)
+	fgets(passwordAsCString, sizeof(passwordAsCString), stdin); 
+
+	if(strcmp("amaatra",passwordAsCString)!=0)
 	{
 		cout<<"\n\t\t\tWRONG PASSWORD! PRESS ANY KEY!";
 		getch();
 		return;
 	}
+
 	system("cls");
+	
 	cout<<"\n\n\n\n\n\n\t\t\tEnter serial number to modify: ";
-	fgets(temp, sizeof(temp), stdin); 
-	serial=atoi(temp);
-	fstream mast("mfile.dat",ios::binary|ios::in|ios::out);
-	mast.seekp(0);
-	while(!mast.eof())
+	fgets(serialNumberAsCString, sizeof(serialNumberAsCString), stdin); 
+	serialNumber=atoi(serialNumberAsCString);
+
+	fstream mastFileStream("mfile.dat",ios::binary|ios::in|ios::out);
+
+	mastFileStream.seekp(0);
+	while(!mastFileStream.eof())
 	{
-		pos_of_record = mast.tellg();
-		mast.read((char*)&b,sizeof(b));
-		if(b.sl()==serial)
+		recordPosition = mastFileStream.tellg();
+
+		mastFileStream.read((char*)&book,sizeof(book));
+		if(book.sl()==serialNumber)
 		{
 			cout<<"\t\t\tRECORD FOUND!\n";
-			b.input(1);
-			mast.seekp(pos_of_record);
-			mast.write((char*)&b,sizeof(b));
+			book.input(1);
+			mastFileStream.seekp(recordPosition);
+			mastFileStream.write((char*)&book,sizeof(book));
+
 			cout<<"\t\t\tRECORD MODIFIED! PRESS ANY KEY!";
 			getch();
+
 			return;
 		}
 	}
@@ -389,74 +448,95 @@ void library::modify()
 void library::retbk()
 {
 	system("cls");
-	char opt,temp[5];
-	int pos_of_record, x, serial;
+
+	char option;
+	char temp[5];
+
+	int pos_of_record;
+	int serial;
+
 	cout<<"\n\n\n\n\n\n\t\t\tEnter serial number to return book: ";
-	fgets(temp, sizeof(temp), stdin); 
+	fgets(temp, sizeof(temp), stdin);
 	serial=atoi(temp);
-	fstream mast("mfile.dat",ios::binary|ios::in|ios::out);
-	mast.seekp(0);
-	while(!mast.eof())
+
+	fstream mastFileStream("mfile.dat",ios::binary|ios::in|ios::out);
+
+	mastFileStream.seekp(0);
+	while(!mastFileStream.eof())
 	{
-		pos_of_record = mast.tellg();
-		mast.read((char*)&b,sizeof(b));
-		if(b.sl()==serial)
+		pos_of_record = mastFileStream.tellg();
+		mastFileStream.read((char*)&book,sizeof(book));
+
+		if(book.sl()==serial)
 		{
-			if(b.freturned()=='y')
+			if(book.freturned()=='y')
 			{
 				cout<<"\t\t\tBOOK ALREADY RETURNED! PRESS ANY KEY!";
 				getch();
 				return;
 			}
+
 			cout<<"\t\t\tRecord Found!";
 			start:
 			cout<<"\n\t\t\tDate of issue: ";
-			b.fissue();
+			book.fissue();
 			cout<<"\n\t\t\tDo you wish to return book? (y/n): ";
-			cin>>opt;
-			opt=tolower(opt);
-			if(opt=='n') return;
-			else if(opt=='y') goto cont;
+			cin>>option;
+			option=tolower(option);
+
+			if(option=='n') 
+				return;
+			else if(option=='y') 
+				goto cont;
 			else
 			{
 				cout<<"\t\t\tTry Again!";
 				goto start;
 			}
 			cont:
-			b.modify();
-			mast.seekp(pos_of_record);
-			mast.write((char*)&b,sizeof(b));
+
+			book.modify();
+			mastFileStream.seekp(pos_of_record);
+			mastFileStream.write((char*)&book,sizeof(book));
+
 			break;
 		}
 	}
-	mast.close();
+
+	mastFileStream.close();
+
 	return;
 }
 
 void library::menu()
 {
 	int count=0;
+	int mainMenuPosition = 1;
 	char choice;
 	do
 	{
 		// textcolor(2);
 		system("cls");
-		char a;
-		fstream art("artwork.txt",ios::in);
-		while(art)
+		char artCharacter;
+
+		fstream artFileStream("artwork.txt",ios::in);
+
+		while(artFileStream)
 		{
-			art.get(a);
-			cout<<a;
+			artFileStream.get(artCharacter);
+			cout<<artCharacter;
 		}
+
 		if(count==0)
 		{
 			loop:
 			cout<<"\n\n 		    DO YOU WISH TO DELETE ALL RECORDS? (y/n): ";
 			cin>>choice;
+
 			if(tolower(choice)=='y')
 			{
-				fstream data("save.dat",ios::out|ios::trunc);
-				data.close();
+				fstream saveFileStream("save.dat",ios::out|ios::trunc);
+				saveFileStream.close();
 				count=1;
 				cout<<"\n		           DATA DELETED! PRESS ANY KEY!";
 			}
@@ -470,42 +550,54 @@ void library::menu()
 				cout<<"		         Try Again!";
 				goto loop;
 			}
-			fstream mast("mfile.dat",ios::out|ios::trunc|ios::binary);
-			fstream data("save.dat",ios::in|ios::binary);
-			while(data)
+
+			fstream mastFileStream("mfile.dat",ios::out|ios::trunc|ios::binary);
+			fstream saveFileStream("save.dat",ios::in|ios::binary);
+
+			while(saveFileStream)
 			{
-				data.read((char*)&b,sizeof(b));
-				mast.write((char*)&b,sizeof(b));
+				saveFileStream.read((char*)&book,sizeof(book));
+				mastFileStream.write((char*)&book,sizeof(book));
 			}
-			mast.close();
-			data.close();
+
+			mastFileStream.close();
+			saveFileStream.close();
+
 			getch();
+
 			continue;
 		}
+
 		cout<<"\n\n		       USE W and S TO NAVIGATE: ";
 		cout<<"\n		       1 ) I n p u t  D a t a ";
-		if(pos==1)
-		cout<<"      <-";
+		if(mainMenuPosition==1)
+			cout<<"      <-";
+		
 		cout<<"\n		       2 ) S e a r c h  D a t a ";
-		if(pos==2)
-		cout<<"    <-";
+		
+		if(mainMenuPosition==2)
+			cout<<"    <-";
+		
 		cout<<"\n		       3 ) R e t u r n  B o o k ";
-		if(pos==3)
-		cout<<"    <-";
+		if(mainMenuPosition==3)
+			cout<<"    <-";
+		
 		cout<<"\n		       4 ) M o d i f y  R e c o r d ";
-		if(pos==4)
-		cout<<"<-";
+		if(mainMenuPosition==4)
+			cout<<"<-";
+		
 		cout<<"\n		       5 ) E x i t  P r o g r a m ";
-		if(pos==5)
-		cout<<"  <-";
-		ch=getch();
+		if(mainMenuPosition==5)
+			cout<<"  <-";
+		
+		char ch=getch();
 		if(ch=='w')
-		move(&pos,0);
+			move(&mainMenuPosition,0);
 		else if(ch=='s')
-		move(&pos,1);
+			move(&mainMenuPosition,1);
 		else if(ch=='\r')
 		{
-			switch(pos)
+			switch(mainMenuPosition)
 			{
 				case 1:input() ;
 					break ;
@@ -521,8 +613,9 @@ void library::menu()
 		}
 	} while(1) ;
 }
+
 int main()
 {
 	system("cls");
-	lib.menu();
+	library.menu();
 }
