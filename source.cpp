@@ -192,11 +192,7 @@ void books::displayData()
 
 void books::getReturnInformation()
 {
-	int shouldExit;
-	do
-	{
-		shouldExit = 0;
-
+	while (true) {
 		cout<<"\n\t\t\tEnter Return Date";
 		cout<<"\n\t\t\tEnter day (dd): ";
 		fgets(returnDay, sizeof(returnDay), stdin);
@@ -217,15 +213,16 @@ void books::getReturnInformation()
 		if(isValidDate(returnDay,returnMonth,returnYear)==0)
 		{
 			cout<<"\t\t\tInvalid Date.\n\t\t\tPlease enter as the following:\n\t\t\tdd should be from 1 to 31 only\n\t\t\tmm should be from 1 to 12\n\t\t\tyyyy should be four digits\n";
-			shouldExit = 1;
 			continue;
 		}
 		if( returnYearAsInt<issueYearAsInt || (returnYearAsInt==issueYearAsInt && returnMonthAsInt<issueMonthAsInt) || (returnYearAsInt==issueYearAsInt && returnMonthAsInt==issueMonthAsInt && returnDayAsInt<issueDayAsInt) )
 		{
 			cout<<"\t\t\tReturn Date Cannot Be Before Issue Date\n";
-			shouldExit = 1;
+			continue;
 		}
-	} while(shouldExit == 1) ;
+
+		break;
+	}
 
 	returnDateAsDaysSinceJan1st = daysSinceJanuary1st(returnDay,returnMonth,returnYear);
 	yearOfReturn = atoi(returnYear);
@@ -341,6 +338,13 @@ void library::beginSearchSequence()
 	fgets(serialNumberAsCString, sizeof(serialNumberAsCString), stdin);
 	serialNumber = atoi(serialNumberAsCString);
 
+	if (serialNumber <= 0) {
+		cout << "\t\t\tInvalid Serial Number";
+		mast.close();
+		getch();
+		return;	
+	}
+
 	mast.seekg(0);
 
 	while(!mast.eof())
@@ -400,15 +404,15 @@ void library::beginRecordModificationSequence()
 {
 	system("cls");
 	char serialNumberAsCString[5];
-	char passwordAsCString[10];
+	string password;
 
 	int recordPosition;
 	int serialNumber;
 
 	cout<<"\n\n\n\n\n\n\n\n\t\tEnter Administrator Password To Modify: ";
-	fgets(passwordAsCString, sizeof(passwordAsCString), stdin); 
+	cin>>password;
 
-	if(strcmp("amaatra",passwordAsCString)!=0)
+	if("amaatra" != password)
 	{
 		cout<<"\n\t\t\tWRONG PASSWORD! PRESS ANY KEY!";
 		getch();
@@ -460,7 +464,7 @@ void library::beginReturnSequence()
 
 	fstream mastFileStream("mfile.dat",ios::binary|ios::in|ios::out);
 
-	mastFileStream.seekp(0);
+	mastFileStream.seekg(0);
 	while(!mastFileStream.eof())
 	{
 		positionOfRecord = mastFileStream.tellg();
@@ -471,32 +475,36 @@ void library::beginReturnSequence()
 			if(book.getIsReturned()=='y')
 			{
 				cout<<"\t\t\tBOOK ALREADY RETURNED! PRESS ANY KEY!";
+				mastFileStream.close();
 				getch();
 				return;
 			}
 
-			cout<<"\t\t\tRecord Found!";
-			start:
-			cout<<"\n\t\t\tDate of issue: ";
-			book.displayIssueInformationFormatted();
-			cout<<"\n\t\t\tDo you wish to return book? (y/n): ";
-			cin>>option;
-			option=tolower(option);
+			while (true) {
+				cout<<"\t\t\tRecord Found!";
+				cout<<"\n\t\t\tDate of issue: ";
+				book.displayIssueInformationFormatted();
+				cout<<"\n\t\t\tDo you wish to return book? (y/n): ";
+				cin>>option;
+				option=tolower(option);
 
-			if(option=='n') 
-				return;
-			else if(option=='y') 
-				goto cont;
-			else
-			{
-				cout<<"\t\t\tTry Again!";
-				goto start;
+				if(option=='n') {
+					mastFileStream.close();
+					return;
+				}
+				else if(option=='y') 
+				{
+					book.getReturnInformation();
+					mastFileStream.seekp(positionOfRecord);
+					mastFileStream.write((char*)&book,sizeof(book));
+					
+					break;
+				} 
+				else 
+				{
+					cout<<"\t\t\tTry Again!";
+				}
 			}
-			cont:
-
-			book.getReturnInformation();
-			mastFileStream.seekp(positionOfRecord);
-			mastFileStream.write((char*)&book,sizeof(book));
 
 			break;
 		}
