@@ -9,3 +9,4 @@ The user starts on a menu interface that uses the W and S keys to navigate up an
 - If Return Book is selected, the program allows users to return a book according to the entered serial number. The user then enters the return date, and a late fee is calculated.
 - If Modify Records is selected, the user enters an administrator password. If it is correct, the user can search for a serial number. If the serial number exists, the user can enter a new name, book name, and issue date.
 
+<img src="main-menu.png" alt="An image of the main menu screen" width="684" height="447"/>
