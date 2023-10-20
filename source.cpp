@@ -21,17 +21,19 @@ int n;
 int daysSinceJanuary1st(char [],char [], char []);
 int isValidDate(char [],char [], char []);
 
-void moveInBounds(int *position, int direction) //Function To Prevent Cursor From Moving Off Screen																																																 			    
+int moveInBounds(int position, int direction) //Function To Prevent Cursor From Moving Off Screen																																																 			    
 {			      
-	int initialPosition=*position;
+	int initialPosition=position;
 
 	if(direction==0)
-		--*position;
+		--position;
 	else
-		++*position;
+		++position;
 
-	if(*position==0 || *position==6)
-		*position=initialPosition;
+	if(position==0 || position==6)
+		position=initialPosition;
+
+	return position;
 }
 
 int isValidDate(char dayAsCString[],char monthAsCString[],char yearAsCString[]) //to check for valid date
@@ -197,7 +199,7 @@ void books::getReturnInformation()
 
 		cout<<"\n\t\t\tEnter Return Date";
 		cout<<"\n\t\t\tEnter day (dd): ";
-		cin.get(returnDay, sizeof(returnDay));
+		fgets(returnDay, sizeof(returnDay), stdin);
 
 		cout<<"\t\t\tEnter month (mm): ";
 		fgets(returnMonth, sizeof(returnMonth), stdin); 
@@ -450,11 +452,11 @@ void library::beginReturnSequence()
 	char serialNumberAsCString[5];
 
 	int positionOfRecord;
-	int serial;
+	int serialNumber;
 
 	cout<<"\n\n\n\n\n\n\t\t\tEnter serial number to return book: ";
 	fgets(serialNumberAsCString, sizeof(serialNumberAsCString), stdin);
-	serial=atoi(serialNumberAsCString);
+	serialNumber=atoi(serialNumberAsCString);
 
 	fstream mastFileStream("mfile.dat",ios::binary|ios::in|ios::out);
 
@@ -464,7 +466,7 @@ void library::beginReturnSequence()
 		positionOfRecord = mastFileStream.tellg();
 		mastFileStream.read((char*)&book,sizeof(book));
 
-		if(book.getSerialNumber()==serial)
+		if(book.getSerialNumber()==serialNumber)
 		{
 			if(book.getIsReturned()=='y')
 			{
@@ -507,10 +509,10 @@ void library::beginReturnSequence()
 
 void library::showMainMenu()
 {
-	int count=0;
+	int showDeleteFilesSequence=0;
 	int mainMenuPosition = 1;
 	char choice;
-	do
+	while (true)
 	{
 		// textcolor(2);
 		system("cls");
@@ -518,40 +520,42 @@ void library::showMainMenu()
 
 		fstream artFileStream("artwork.txt",ios::in);
 
-		while(artFileStream)
+		while(!artFileStream.eof())
 		{
 			artFileStream.get(artCharacter);
 			cout<<artCharacter;
 		}
 
-		if(count==0)
+		if(showDeleteFilesSequence==0)
 		{
-			loop:
-			cout<<"\n\n 		    DO YOU WISH TO DELETE ALL RECORDS? (y/n): ";
-			cin>>choice;
+			while(true) {
+				cout<<"\n\n 		    DO YOU WISH TO DELETE ALL RECORDS? (y/n): ";
+				cin>>choice;
 
-			if(tolower(choice)=='y')
-			{
-				fstream saveFileStream("save.dat",ios::out|ios::trunc);
-				saveFileStream.close();
-				count=1;
-				cout<<"\n		           DATA DELETED! PRESS ANY KEY!";
+				if(tolower(choice)=='y')
+				{
+					fstream saveFileStream("save.dat",ios::out|ios::trunc);
+					saveFileStream.close();
+					showDeleteFilesSequence=1;
+					cout<<"\n		           DATA DELETED! PRESS ANY KEY!";
+					break;
+				}
+				else if(tolower(choice)=='n')
+				{
+					showDeleteFilesSequence=1;
+					cout<<"\n		         DATA NOT DELETED! PRESS ANY KEY!";
+					break;
+				}
+				else
+				{
+					cout<<"		         Try Again!";
+				}
 			}
-			else if(tolower(choice)=='n')
-			{
-				count=1;
-				cout<<"\n		         DATA NOT DELETED! PRESS ANY KEY!";
-			}
-			else
-			{
-				cout<<"		         Try Again!";
-				goto loop;
-			}
-
+			
 			fstream mastFileStream("mfile.dat",ios::out|ios::trunc|ios::binary);
 			fstream saveFileStream("save.dat",ios::in|ios::binary);
 
-			while(saveFileStream)
+			while(!saveFileStream.eof())
 			{
 				saveFileStream.read((char*)&book,sizeof(book));
 				mastFileStream.write((char*)&book,sizeof(book));
@@ -589,9 +593,9 @@ void library::showMainMenu()
 		
 		char ch=getch();
 		if(ch=='w')
-			moveInBounds(&mainMenuPosition,0);
+			mainMenuPosition = moveInBounds(mainMenuPosition,0);
 		else if(ch=='s')
-			moveInBounds(&mainMenuPosition,1);
+			mainMenuPosition = moveInBounds(mainMenuPosition,1);
 		else if(ch=='\r')
 		{
 			switch(mainMenuPosition)
@@ -608,7 +612,7 @@ void library::showMainMenu()
 				       exit(0) ;
 			}
 		}
-	} while(1) ;
+	}
 }
 
 int main()
