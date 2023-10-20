@@ -76,7 +76,7 @@ int isValidDate(char dayAsCString[],char monthAsCString[],char yearAsCString[]) 
 	return 1;
 }
 
-class books //CONTAINS ALL BOOK RELATED OPERATIONS
+class Book //CONTAINS ALL BOOK RELATED OPERATIONS
 {
 	private: 
 		char serialNumber[5], borrowerName[30], bookName[30];
@@ -96,17 +96,17 @@ class books //CONTAINS ALL BOOK RELATED OPERATIONS
 		int getSerialNumber();
 } book ;
 
-int books::getSerialNumber()
+int Book::getSerialNumber()
 {
 	return serialNumberAsInt;
 }
 
-char books::getIsReturned()
+char Book::getIsReturned()
 {
 	return isReturned;
 }
 
-void books::displayIssueInformationFormatted()
+void Book::displayIssueInformationFormatted()
 {
 	cout.write(issueDay,2);
 	cout<<"/";
@@ -115,7 +115,7 @@ void books::displayIssueInformationFormatted()
 	cout.write(issueYear,4);
 }
 
-void books::displayReturnInformationFormatted()
+void Book::displayReturnInformationFormatted()
 {
 	cout.write(returnDay,2);
 	cout<<"/";
@@ -123,7 +123,7 @@ void books::displayReturnInformationFormatted()
 	cout<<"/";
 	cout.write(returnYear,4);
 }
-void books::inputData(int isNewData)
+void Book::inputData(int isNewData)
 {
 	int shouldExit;
 	if(isNewData==0)
@@ -170,7 +170,7 @@ void books::inputData(int isNewData)
 		isReturned='n';
 }
 
-void books::displayData()
+void Book::displayData()
 {
 	cout<<"\t\t\tSerial Number: "<<serialNumber;
 	cout<<"\n\t\t\tName: ";
@@ -190,7 +190,7 @@ void books::displayData()
 	//cout<<"\nIssue Days: "<<issue_days;
 }
 
-void books::getReturnInformation()
+void Book::getReturnInformation()
 {
 	while (true) {
 		cout<<"\n\t\t\tEnter Return Date";
