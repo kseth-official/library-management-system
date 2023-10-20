@@ -18,11 +18,11 @@ int n;
 //INPUT OF SERIAL NUMBER AS CHARACTERS MESSES UP PROGRAM
 
 //FUNCTION PROTOTYPES
-int dayofyear(char [],char [], char []);
-int datecheck(char [],char [], char []);
+int daysSinceJanuary1st(char [],char [], char []);
+int isValidDate(char [],char [], char []);
 
-void move(int *position, int direction) //Function To Prevent Cursor From Moving Off
-{			      //Screen																																																 			      //cursor from leaving screen
+void moveInBounds(int *position, int direction) //Function To Prevent Cursor From Moving Off Screen																																																 			    
+{			      
 	int initialPosition=*position;
 
 	if(direction==0)
@@ -34,7 +34,7 @@ void move(int *position, int direction) //Function To Prevent Cursor From Moving
 		*position=initialPosition;
 }
 
-int datecheck(char dayAsCString[],char monthAsCString[],char yearAsCString[]) //to check for valid date
+int isValidDate(char dayAsCString[],char monthAsCString[],char yearAsCString[]) //to check for valid date
 {
 	int day=atoi(dayAsCString);
 	int month=atoi(monthAsCString);
@@ -85,31 +85,26 @@ class books //CONTAINS ALL BOOK RELATED OPERATIONS
 		int yearOfIssue, yearOfReturn;
 
 	public: 
-		int sl()
-		{
-			return serialNumberAsInt;
-		}
-
-		void input(int);
-		void output();
-		void modify();
-		void fissue();
-		void freturn();
-		char freturned();
-		int fserial();
+		void inputData(int);
+		void displayData();
+		void getReturnInformation();
+		void displayIssueInformationFormatted();
+		void displayReturnInformationFormatted();
+		char getIsReturned();
+		int getSerialNumber();
 } book ;
 
-int books::fserial()
+int books::getSerialNumber()
 {
 	return serialNumberAsInt;
 }
 
-char books::freturned()
+char books::getIsReturned()
 {
 	return isReturned;
 }
 
-void books::fissue()
+void books::displayIssueInformationFormatted()
 {
 	cout.write(issueDay,2);
 	cout<<"/";
@@ -118,7 +113,7 @@ void books::fissue()
 	cout.write(issueYear,4);
 }
 
-void books::freturn()
+void books::displayReturnInformationFormatted()
 {
 	cout.write(returnDay,2);
 	cout<<"/";
@@ -126,7 +121,7 @@ void books::freturn()
 	cout<<"/";
 	cout.write(returnYear,4);
 }
-void books::input(int isNewData)
+void books::inputData(int isNewData)
 {
 	int shouldExit;
 	if(isNewData==0)
@@ -156,7 +151,7 @@ void books::input(int isNewData)
 		cout<<"\t\t\tEnter year number (yyyy): ";
 		fgets(issueYear, sizeof(issueYear), stdin);
 
-		if(datecheck(issueDay,issueMonth,issueYear)==0)
+		if(isValidDate(issueDay,issueMonth,issueYear)==0)
 		{
 			cout<<"\n\t\t\tInvalid Date.\n\t\t\tPlease enter as the following:\n\t\t\tdd should be from 1 to 31 only\n\t\t\tmm should be from 1 to 12\n\t\t\tyyyy should be four digits\n\n";
 			shouldExit=1;
@@ -165,7 +160,7 @@ void books::input(int isNewData)
 		cout<<"\n";
 	} while(shouldExit==1) ;
 	
-	issueDateAsDaysSinceJan1st = dayofyear(issueDay,issueMonth,issueYear);
+	issueDateAsDaysSinceJan1st = daysSinceJanuary1st(issueDay,issueMonth,issueYear);
 	
 	yearOfIssue = atoi(issueYear);
 	
@@ -173,7 +168,7 @@ void books::input(int isNewData)
 		isReturned='n';
 }
 
-void books::output()
+void books::displayData()
 {
 	cout<<"\t\t\tSerial Number: "<<serialNumber;
 	cout<<"\n\t\t\tName: ";
@@ -182,7 +177,7 @@ void books::output()
 	puts(bookName);
 
 	cout<<"\t\t\tIssue Date: ";
-	fissue();
+	displayIssueInformationFormatted();
 
 	cout<<"\n\t\t\tReturn Status: ";
 
@@ -193,7 +188,7 @@ void books::output()
 	//cout<<"\nIssue Days: "<<issue_days;
 }
 
-void books::modify()
+void books::getReturnInformation()
 {
 	int shouldExit;
 	do
@@ -217,7 +212,7 @@ void books::modify()
 		int returnMonthAsInt = atoi(returnMonth);
 		int returnYearAsInt = atoi(returnYear);
 
-		if(datecheck(returnDay,returnMonth,returnYear)==0)
+		if(isValidDate(returnDay,returnMonth,returnYear)==0)
 		{
 			cout<<"\t\t\tInvalid Date.\n\t\t\tPlease enter as the following:\n\t\t\tdd should be from 1 to 31 only\n\t\t\tmm should be from 1 to 12\n\t\t\tyyyy should be four digits\n";
 			shouldExit = 1;
@@ -230,16 +225,16 @@ void books::modify()
 		}
 	} while(shouldExit == 1) ;
 
-	returnDateAsDaysSinceJan1st = dayofyear(returnDay,returnMonth,returnYear);
+	returnDateAsDaysSinceJan1st = daysSinceJanuary1st(returnDay,returnMonth,returnYear);
 	yearOfReturn = atoi(returnYear);
 
 	cout<<"\n\t\t\tDATE OF ISSUE: ";
-	fissue();
+	displayIssueInformationFormatted();
 
 	cout<<"\n\t\t\tDATE OF RETURN: ";
+	displayReturnInformationFormatted();
 
-	freturn();
-
+	// Calculate Late Fee
 	int yearDifference = abs(yearOfIssue-yearOfReturn);
 	if(yearDifference == 0)
 	{
@@ -262,17 +257,19 @@ void books::modify()
 				lateFee += 365;
 		}
 		
-		cout<<lateFee;
+		// cout<<"Late Fee Is: "<<lateFee;
 	}
 
 	double tlate_fee = lateFee ;
 	tlate_fee = (tlate_fee / 14) * 100;
 	cout << "\n\t\t\tLate Fee: " << tlate_fee;
+
 	isReturned = 'y';
+
 	getch();
 }
 
-int dayofyear(char dayAsCString[],char monthAsCString[],char yearAsCString[]) //FUNCTION TO CALCULATE
+int daysSinceJanuary1st(char dayAsCString[],char monthAsCString[],char yearAsCString[]) //FUNCTION TO CALCULATE
 {                                                  //DAYS FROM START OF YEAR
 	int sum = 0;
 	int day = atoi(dayAsCString) ;
@@ -320,16 +317,16 @@ class library //CONTAINS ALL MASTER LIBRARY OPERATIONS
 	private:
 
 	public: 
-		void input();
-		void search();
-		void menu();
-		void save();
-		void retbk();
-		void modify();
+		void beginBorrowSequence();
+		void beginSearchSequence();
+		void showMainMenu();
+		void saveAllData();
+		void beginReturnSequence();
+		void beginRecordModificationSequence();
 
 } library ;
 
-void library::search()
+void library::beginSearchSequence()
 {
 	system("cls");
 	char serialNumberAsCString[5];
@@ -347,9 +344,9 @@ void library::search()
 	while(!mast.eof())
 	{
 		mast.read((char*)&book,sizeof(book));
-		if(book.sl()==serialNumber)
+		if(book.getSerialNumber()==serialNumber)
 		{
-			book.output();
+			book.displayData();
 			getch();
 			break;
 		}
@@ -360,7 +357,7 @@ void library::search()
 	return;
 }
 
-void library::input()
+void library::beginBorrowSequence()
 {
 	system("cls");
 	char numberOfBorrowersAsCString[5];
@@ -378,7 +375,7 @@ void library::input()
 		//cout<<"\n\t\t\tINPUTTING SERIAL NUMBER\n\t\t\tWILL NOT OVERWRITE IT";
 		cout<<"\n\n\n\n\n\n\t\t\tNOTE: TO MODIFY EXISTING SERIAL NUMBER\n\t\t\tUSE MODIFY OPTION IN MENU\n";
 		cout<<"\n\t\t\tEnter Borrower "<<i+1<<"\n";
-		book.input(0);
+		book.inputData(0);
 		mastFileStream.write((char*)&book,sizeof(book));
 	}
 
@@ -386,7 +383,7 @@ void library::input()
 	return;
 }
 
-void library::save()
+void library::saveAllData()
 {
 	fstream mastFileStream("mfile.dat",ios::in|ios::binary);
 	fstream saveFileStream("save.dat",ios::app|ios::binary);
@@ -397,7 +394,7 @@ void library::save()
 	}
 }
 
-void library::modify()
+void library::beginRecordModificationSequence()
 {
 	system("cls");
 	char serialNumberAsCString[5];
@@ -430,10 +427,10 @@ void library::modify()
 		recordPosition = mastFileStream.tellg();
 
 		mastFileStream.read((char*)&book,sizeof(book));
-		if(book.sl()==serialNumber)
+		if(book.getSerialNumber()==serialNumber)
 		{
 			cout<<"\t\t\tRECORD FOUND!\n";
-			book.input(1);
+			book.inputData(1);
 			mastFileStream.seekp(recordPosition);
 			mastFileStream.write((char*)&book,sizeof(book));
 
@@ -445,14 +442,14 @@ void library::modify()
 	}
 }
 
-void library::retbk()
+void library::beginReturnSequence()
 {
 	system("cls");
 
 	char option;
-	char temp[5];
+	char serialNumberAsCString[5];
 
-	int pos_of_record;
+	int positionOfRecord;
 	int serial;
 
 	cout<<"\n\n\n\n\n\n\t\t\tEnter serial number to return book: ";
@@ -467,9 +464,9 @@ void library::retbk()
 		pos_of_record = mastFileStream.tellg();
 		mastFileStream.read((char*)&book,sizeof(book));
 
-		if(book.sl()==serial)
+		if(book.getSerialNumber()==serial)
 		{
-			if(book.freturned()=='y')
+			if(book.getIsReturned()=='y')
 			{
 				cout<<"\t\t\tBOOK ALREADY RETURNED! PRESS ANY KEY!";
 				getch();
@@ -479,7 +476,7 @@ void library::retbk()
 			cout<<"\t\t\tRecord Found!";
 			start:
 			cout<<"\n\t\t\tDate of issue: ";
-			book.fissue();
+			book.displayIssueInformationFormatted();
 			cout<<"\n\t\t\tDo you wish to return book? (y/n): ";
 			cin>>option;
 			option=tolower(option);
@@ -495,8 +492,8 @@ void library::retbk()
 			}
 			cont:
 
-			book.modify();
-			mastFileStream.seekp(pos_of_record);
+			book.getReturnInformation();
+			mastFileStream.seekp(positionOfRecord);
 			mastFileStream.write((char*)&book,sizeof(book));
 
 			break;
@@ -508,7 +505,7 @@ void library::retbk()
 	return;
 }
 
-void library::menu()
+void library::showMainMenu()
 {
 	int count=0;
 	int mainMenuPosition = 1;
@@ -592,22 +589,22 @@ void library::menu()
 		
 		char ch=getch();
 		if(ch=='w')
-			move(&mainMenuPosition,0);
+			moveInBounds(&mainMenuPosition,0);
 		else if(ch=='s')
-			move(&mainMenuPosition,1);
+			moveInBounds(&mainMenuPosition,1);
 		else if(ch=='\r')
 		{
 			switch(mainMenuPosition)
 			{
-				case 1:input() ;
+				case 1:beginBorrowSequence() ;
 					break ;
-				case 2:search() ;
+				case 2:beginSearchSequence() ;
 					break ;
-				case 3:retbk() ;
+				case 3:beginReturnSequence() ;
 					break ;
-				case 4:modify() ;
+				case 4:beginRecordModificationSequence() ;
 					break;
-				case 5:save() ;
+				case 5:saveAllData() ;
 				       exit(0) ;
 			}
 		}
@@ -617,5 +614,5 @@ void library::menu()
 int main()
 {
 	system("cls");
-	library.menu();
+	library.showMainMenu();
 }
