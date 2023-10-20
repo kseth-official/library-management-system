@@ -3,8 +3,8 @@ CXX = g++
 CXXFLAGS = -std=c++17 -Wall
 
 # Source files and output executable name
-SRC = source.cpp
-OUT = libManage
+SRC = Book.cpp Library.cpp Main.cpp 
+OUT = LibraryManager
 
 # Default target: build the executable
 all: $(OUT)
