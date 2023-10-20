@@ -1,6 +1,6 @@
 # Library Management System
 
-This program is a console-based implementation of a library management system in C++. It provides a framework to issue, return, and search book records.
+This program is a console-based implementation of a library management system in C++. It provides a framework to issue, return, modify, and search book records.
 
 **Skills**: C++, File Manipulation, Classes, Makefiles, String Manipulation
 
