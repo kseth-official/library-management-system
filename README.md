@@ -1,6 +1,6 @@
-# Library Management System
+# BookHaven
 
-This program is a console-based implementation of a library management system in C++. It provides a framework to issue, return, modify, and search book records.
+BookHaven is a console-based implementation of a library management system in C++. It provides a framework to issue, return, modify, and search book records.
 
 **Skills**: C++, File I/O, Classes, Makefiles, String Manipulation
 
